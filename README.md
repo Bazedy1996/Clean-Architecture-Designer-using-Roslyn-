@@ -163,8 +163,6 @@ ProjectMaker is a web API designed to facilitate the creation and management of 
 
 ## Schemas
 
-### `ServiceDto`
-
 ```json
 {
   "projectName": "string",
