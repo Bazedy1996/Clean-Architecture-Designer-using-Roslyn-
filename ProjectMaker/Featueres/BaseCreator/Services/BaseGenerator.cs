@@ -16,6 +16,7 @@ namespace ProjectMaker.Featueres.BaseCreator.Services
             await ResponseHandlerClassCreator(dto);
             await GenerateGenericRepositoryInterface(dto);
             await GenerateGenericRepositoryClass(dto);
+            await CreateErrorResponseClass(dto);
             return responseHandler.Created("Base Created Successfully");
         }
         #region ResponseCreator
@@ -462,6 +463,57 @@ namespace ProjectMaker.Featueres.BaseCreator.Services
 
             var statements = bodyLines.Select(line => SyntaxFactory.ParseStatement(line)).ToArray();
             return methodDeclaration.WithBody(SyntaxFactory.Block(statements));
+        }
+        #endregion
+        #region Generate ErrorResponse
+        private async Task CreateErrorResponseClass(ServiceDto dto)
+        {
+            var basePath = Path.Combine(projectService.GetServicePath(dto), "Base");
+            Directory.CreateDirectory(basePath);
+            var classCode = GenerateErrorResponseClass(dto);
+            var filePath = Path.Combine(basePath, "ErrorResponse.cs");
+            await File.WriteAllTextAsync(filePath, classCode);
+        }
+
+        private string GenerateErrorResponseClass(ServiceDto dto)
+        {
+            var classDeclaration = SyntaxFactory.ClassDeclaration("ErrorResponse")
+                .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .AddMembers(
+                    SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("string"), "Message")
+                        .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                        .AddAccessorListAccessors(
+                            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                            SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                        )
+                        .WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(string.Empty))))
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+
+                    SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("string"), "ExceptionType")
+                        .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                        .AddAccessorListAccessors(
+                            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                            SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                        )
+                        .WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(string.Empty))))
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+
+                    SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("string?"), "StackTrace")
+                        .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                        .AddAccessorListAccessors(
+                            SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                            SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                        )
+                        .WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(string.Empty))))
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                );
+
+            var namespaceDeclaration = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName($"{dto.ProjectName}.{dto.ServiceName}.Base"))
+                .AddMembers(classDeclaration);
+
+            var formattedNode = namespaceDeclaration.NormalizeWhitespace();
+
+            return formattedNode.ToFullString();
         }
         #endregion
     }

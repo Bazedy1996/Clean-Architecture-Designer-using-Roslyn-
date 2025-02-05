@@ -11,7 +11,6 @@ namespace ProjectMaker.Controllers
 
 
 
-        #region Actions
         public ObjectResult NewResult<T>(Response<T> response)
         {
             switch (response.StatusCode)
@@ -34,6 +33,5 @@ namespace ProjectMaker.Controllers
                     return new BadRequestObjectResult(response);
             }
         }
-        #endregion
     }
 }

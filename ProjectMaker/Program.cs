@@ -1,6 +1,8 @@
 using ProjectMaker.Base;
 using ProjectMaker.Featueres.BaseCreator.Contracts;
 using ProjectMaker.Featueres.BaseCreator.Services;
+using ProjectMaker.Featueres.ControllerCreator.Contracts;
+using ProjectMaker.Featueres.ControllerCreator.Services;
 using ProjectMaker.Featueres.DataCreator.Contracts;
 using ProjectMaker.Featueres.DataCreator.Services;
 using ProjectMaker.Featueres.DBHandler.Contracts;
@@ -33,16 +35,18 @@ builder.Services.AddScoped<IDtoCreatorService, DtoCreatorService>();
 builder.Services.AddScoped<IBaseGenerator, BaseGenerator>();
 builder.Services.AddScoped<IPropertyHandler, PropertyHandler>();
 builder.Services.AddScoped<IServiceCreatorService, ServiceCreatorService>();
+builder.Services.AddScoped<IBaseControllerService, BaseControllerService>();
+builder.Services.AddScoped<IControllerCreatorService, ControllerCreatorService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // Specify the Angular app URL
-              .AllowAnyHeader()                     // Allow all headers
-              .AllowAnyMethod()                     // Allow all HTTP methods (GET, POST, etc.)
-              .AllowCredentials();                  // Allow cookies/authentication if needed
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 var app = builder.Build();
